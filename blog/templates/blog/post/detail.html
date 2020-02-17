@@ -1,0 +1,76 @@
+{% extends 'blog/base.html' %}
+
+{% load blog_tags %}
+{% load bootstrap4 %}
+
+{% block title %}{{post.title}}{% endblock title %}
+
+{% block content %}
+  <h1 class="text-center text-success">{{post.title}}</h1>
+
+  <p>Tags: {{post.tags.all|join:", "}}</p>
+
+  <p>Published {{post.publish}} by
+    <span class="font-weight-bold text-primary">
+      {{post.author}}
+    </span>
+  </p>
+
+  {{post.body|markdown}}
+
+  <a 
+    class="btn btn-success" 
+    role="button" 
+    href="{% url 'blog:post_share' post.id %}"
+  >
+    <i class="fas fa-share-alt-square"></i>
+    Share this post
+  </a>
+
+  <h2 class="mt-4">Similar posts</h2>
+  {% for post in similar_posts %}
+    <p>
+      <a href="{{post.get_absolute_url}}">{{post.title}}</a>
+    </p>
+  {% empty %}
+    There are no similar posts yet
+  {% endfor %}
+
+  {% with comments.count as total.comments %}
+    <h2 class="mt-3">
+      {{total_comments}} Comments {{total_comments|pluralize}}
+    </h2>
+  {% endwith %}
+
+  {% for comment in comments %}
+    <div class="card w-100">
+      <div class="card-header">
+        <p>Comment {{forloop.counter}} by {{comment.name}}</p>
+      </div>
+
+      <div class="card-body">
+        {{comment.body|linebreaks}}
+      </div>
+    </div>
+  {% empty %}
+    <p>There are no comments yet.</p>
+  {% endfor %}
+
+  {% if new_comment %}
+    <h2 class="text-center mt-2">Your comment has been added</h2>
+  {% else %}
+    <h2 class="text-center mt-2">Add a new comment</h2>
+
+    <form action="" class="form mt-2" method="post">
+      {% csrf_token %}
+      {% bootstrap_form comment_form %}
+      
+      <button 
+        class="btn btn-outline-primary text-uppercase font-weight-bold" 
+        type="submit"
+      >
+        Add comment
+      </button>
+    </form>
+  {% endif %}
+{% endblock content %}
